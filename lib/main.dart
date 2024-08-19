@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'weather.dart';
-import 'forecast.dart';
-import 'about.dart';
+import 'home.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +17,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.teal,
         appBarTheme: const AppBarTheme(backgroundColor: Colors.teal)
       ),
-      home: const Weather(),
+      home: const Home(),
     );
   }
 }
