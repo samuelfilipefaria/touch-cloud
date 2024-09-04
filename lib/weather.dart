@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 class Weather extends StatefulWidget {
   const Weather({super.key});
@@ -30,11 +31,12 @@ class _WeatherState extends State<Weather> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text("Touch Cloud"),
         titleTextStyle: const TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.bold,
-          color: Colors.white
+          color: Colors.white,
         ),
       ),
       body: Padding(
@@ -62,9 +64,13 @@ class _WeatherState extends State<Weather> {
               ),
 
               Card(
+                color: Colors.white,
                 clipBehavior: Clip.hardEdge,
                 child: InkWell(
                   splashColor: Colors.teal.withAlpha(30),
+                  onDoubleTap:() {
+                    if (weather["temperature"] != "") { _showMyDialog(); }
+                  },
                   onTap:() async {
                     final String textToCopy = weatherMessage();
                     if (textToCopy.isNotEmpty && weather["temperature"] != "") {
@@ -93,7 +99,7 @@ class _WeatherState extends State<Weather> {
                       } else {
                         return SizedBox(
                           width: 400,
-                          height: 250,
+                          height: 400,
                           child: ListView(
                             padding: const EdgeInsets.all(8),
                             children: <Widget>[
@@ -131,6 +137,16 @@ class _WeatherState extends State<Weather> {
                                   )
                                 ),
                               ),
+                              const Chip(
+                                iconTheme: IconThemeData(color: Colors.teal),
+                                avatar: Icon(Icons.copy),
+                                label: Text('One tab to copy the values'),
+                              ),
+                              const Chip(
+                                iconTheme: IconThemeData(color: Colors.teal),
+                                avatar: Icon(Icons.auto_graph),
+                                label: Text('Two taps to see the forecast'),
+                              ),
                             ],
                           )
                         );
@@ -146,8 +162,61 @@ class _WeatherState extends State<Weather> {
     );
   }
 
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Forecast for next 3 days in $cityName'),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          content: SizedBox(
+            height: 300,
+            width: 800,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                ListTile(
+                  title: const Text("Day 1"),
+                  subtitle: Text("Temperature: ${forecast["day 1"]["temperature"]} | Wind: ${forecast["day 1"]["wind"]}"),
+                ),
+                ListTile(
+                  title: const Text("Day 2"),
+                  subtitle: Text("Temperature: ${forecast["day 2"]["temperature"]} | Wind: ${forecast["day 2"]["wind"]}"),
+                ),
+                ListTile(
+                  title: const Text("Day 3"),
+                  subtitle: Text("Temperature: ${forecast["day 3"]["temperature"]} | Wind: ${forecast["day 3"]["wind"]}"),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: ButtonStyle(
+                overlayColor: MaterialStateProperty.all(const Color.fromRGBO(255, 255, 255, 1)),
+              ),
+              child: const Text('Close', style: TextStyle(color: Colors.black),),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String weatherMessage() {
-    return "Tempo em $cityName:";
+    final dateFormatter = DateFormat('yyyy-MM-dd');
+    final timeFormatter = DateFormat('HH:mm:ss');
+
+    final DateTime now = DateTime.now();
+    final formattedDate = dateFormatter.format(now);
+    final formattedTime = timeFormatter.format(now);
+
+    return "Weather in $cityName ($formattedDate on $formattedTime) => Temperature: ${weather["temperature"]} | Wind: ${weather["wind"]} | Description: ${weather["description"]}";
   }
 
   void fetchCityWeather(cityToFind) async {
@@ -166,15 +235,13 @@ class _WeatherState extends State<Weather> {
     };
 
     forecast = {
-    "day 1": {},
-    "day 2": {},
-    "day 3": {},
-  };
+      "day 1": result["forecast"][0],
+      "day 2": result["forecast"][1],
+      "day 3": result["forecast"][2],
+    };
 
     setState(() {
       weather = weather;
     });
-
-    print(weather);
   }
 }
