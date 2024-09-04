@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:touch_cloud/about.dart';
-import 'package:touch_cloud/forecast.dart';
 import 'package:touch_cloud/weather.dart';
 
 class Home extends StatefulWidget {
@@ -15,7 +14,6 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     Weather(),
-    Forecast(),
     About(),
   ];
 
@@ -35,15 +33,11 @@ class _HomeState extends State<Home> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.location_city),
-            label: 'Buscar cidade',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.auto_graph),
-            label: 'Previsão',
+            label: 'Search a city weather',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
-            label: 'Sobre',
+            label: 'About',
           ),
         ],
         currentIndex: _selectedIndex,
